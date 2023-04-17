@@ -14,16 +14,15 @@ const db = mysql.createConnection(
   }
 );
 
-const menuQ = [
-    {
-        type: 'list',
-        name: 'menu',
-        choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit'],
-        message: 'What would you like to do?',
-    }
-];
-
 const mainMenu = () => {
+    const menuQ = [
+        {
+            type: 'list',
+            name: 'menu',
+            choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit'],
+            message: 'What would you like to do?',
+        }
+    ];
     inquirer
     .prompt(menuQ)
     .then((answers) => {
@@ -82,6 +81,67 @@ const viewEmployees = () => {
         console.table(results)
         console.log("\n")
         mainMenu();
+    });
+};
+
+const addDepartment = () => {
+    const question = [
+        {
+            type: 'input',
+            name: 'department',
+            message: 'What is the name of the department?',
+        }
+    ];
+    inquirer
+    .prompt(question)
+    .then((answers) => {
+        const sql = 'INSERT INTO departments (department_name) VALUES (?)';
+        db.query(sql, answers.department, (err,results) => {
+            console.log(`\n Added ${answers.department} to the department table.`);
+            viewDepartment();
+        });
+    });
+};
+
+const addRole = () => {
+    var departmentList
+    db.query('SELECT department_name FROM departments', function (err,results) {
+        departmentList = results.map((result)=> {
+            return result.department_name;
+        });
+        const questions = [
+            {
+                type: 'input',
+                name: 'role',
+                message: 'What is the name of the role?',
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'What is the salary of the role?',
+            },
+            {
+                type: 'list',
+                name: 'department',
+                choices: departmentList,
+                message: 'Which department does the role belong to?',
+            }
+        ];
+        inquirer
+        .prompt(questions)
+        .then((answers) => {
+            const sql = 'INSERT INTO work_roles (title, salary, department_id) VALUES (?,?,?)';
+            var departmentID
+            db.query(`SELECT id FROM departments WHERE department_name = "${answers.department}"`, function (err,results) {
+                departmentID = results.map((result)=> {
+                    return result.id;
+                });
+                db.query(sql, [answers.role, answers.salary, departmentID[0]], (err,results) => {
+                    console.log(`\n Added ${answers.role} to the role table.`);
+                    viewRoles();
+                });
+            }); 
+        });
     });
 };
 
