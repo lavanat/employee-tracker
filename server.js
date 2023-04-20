@@ -12,6 +12,7 @@ const db = mysql.createConnection(
     }
 );
 
+// Create a main menu to display the list of actions
 const mainMenu = () => {
     const menuQ = [
         {
@@ -53,6 +54,7 @@ const mainMenu = () => {
         });
 };
 
+// function to view the departments
 const viewDepartment = () => {
     db.query('SELECT * FROM departments', function (err, results) {
         console.log("\n")
@@ -62,6 +64,7 @@ const viewDepartment = () => {
     });
 };
 
+// function to view the roles
 const viewRoles = () => {
     const sql = 'SELECT work_roles.id, work_roles.title, departments.department_name, work_roles.salary FROM work_roles LEFT JOIN departments ON work_roles.department_id = departments.id';
     db.query(sql, function (err, results) {
@@ -72,6 +75,7 @@ const viewRoles = () => {
     });
 };
 
+// function to view the employees
 const viewEmployees = () => {
     const sql = 'SELECT employee.id, employee.first_name, employee.last_name, work_roles.title, departments.department_name AS department, work_roles.salary, Concat(manager.first_name," ", manager.last_name) AS manager FROM employees employee LEFT JOIN work_roles ON employee.role_id = work_roles.id LEFT JOIN departments ON work_roles.department_id = departments.id LEFT OUTER JOIN employees manager ON employee.manager_id = manager.id';
     db.query(sql, function (err, results) {
@@ -82,6 +86,7 @@ const viewEmployees = () => {
     });
 };
 
+// function to add a department
 const addDepartment = () => {
     const question = [
         {
@@ -101,6 +106,7 @@ const addDepartment = () => {
         });
 };
 
+// function to add a role
 const addRole = () => {
     var departmentList
     db.query('SELECT department_name FROM departments', function (err, results) {
@@ -143,7 +149,7 @@ const addRole = () => {
     });
 };
 
-
+// function to add an employee
 const addEmployee = () => {
     db.query("SELECT id, title FROM work_roles", function (err, results) {
         const rolesList = results.map(role => ({
@@ -193,6 +199,7 @@ const addEmployee = () => {
     });
 };
 
+// function to update an employee role
 const updateEmployeeRole = () => {
     db.query("SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees", function (err, results) {
         const employeeList = results.map(employee => ({
@@ -232,6 +239,7 @@ const updateEmployeeRole = () => {
     });
 };
 
+// display the main menu
 const init = () => {
         console.log("Welcome to the Employee Manager Application! \n ----------------- \n");
         mainMenu();
