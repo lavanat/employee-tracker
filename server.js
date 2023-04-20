@@ -194,7 +194,42 @@ const addEmployee = () => {
 };
 
 const updateEmployeeRole = () => {
+    db.query("SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees", function (err, results) {
+        const employeeList = results.map(employee => ({
+            name: employee.name,
+            value: employee.id,
+        }));
+        db.query("SELECT id, title FROM work_roles", function (err, results) {
+            const rolesList = results.map(role => ({
+                name: role.title,
+                value: role.id,
+            }));
+            const questions = [
+                {
+                    type: 'list',
+                    name: 'employee',
+                    choices: employeeList,
+                    message: "Which employee do you want to update?",
+                },
+                {
+                    type: 'list',
+                    name: 'role',
+                    choices: rolesList,
+                    message: "Which role do you want to assign the employee?",
+                }
+            ];
+            inquirer
+                .prompt(questions)
+                .then((answers) => {
+                    const sql = 'UPDATE employees SET role_id = ? WHERE id = ?';
+                    db.query(sql, [answers.role, answers.employee], (err, results) => {
+                        console.log(`\n Updated their role in the employees table.`);
+                        viewEmployees();
+                    });
 
+                });
+        });
+    });
 };
 
 const init = () => {
